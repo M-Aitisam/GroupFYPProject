@@ -67,7 +67,7 @@
             var result = await AuthService.LoginAsync(loginModel.Username, loginModel.Password);
             if (result)
             {
-                Navigation.NavigateTo("/dashboard");
+                Navigation.NavigateTo("/adminpage");
                 loginModel = new(); // Reset fields after successful login
             }
             else
