@@ -1,16 +1,16 @@
-﻿
-using System.Text.Json;
+﻿using System.Text.Json;
 using System;
 using System.Collections.Generic;
+using System.IO; // Ensure that you include this for Path and File operations
 using System.Linq;
 using Model;
 
 namespace Dal
-
 {
     public class BillService
     {
-        private readonly string rateItemsFilePath = Path.Combine(Directory.GetCurrentDirectory(), "Data/RateItems.json");
+        // Update the path to the Data folder inside your project
+        private readonly string rateItemsFilePath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "RateItems.json");
 
         public List<RateItem> RateItems { get; set; } = new List<RateItem>();
         public List<RateItem> SelectedItems { get; private set; } = new List<RateItem>();
@@ -114,5 +114,4 @@ namespace Dal
             }
         }
     }
-
 }
