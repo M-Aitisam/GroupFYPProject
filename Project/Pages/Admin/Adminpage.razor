@@ -1,6 +1,6 @@
 ﻿@page "/adminpage"
 
-
+@layout BillLayout
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.JSInterop
 
@@ -9,6 +9,19 @@
 <div>
   
     <div>
+        <div  style=" background-color:wheat;padding:2rem">
+            <nav class="navbar bg-body-tertiary bg-light">
+                <div class="container-fluid">
+                    <a class="navbar-brand">Navbar</a>
+                    <div class="d-flex">
+                        <NavLink href="/product">
+                            <i class="bi bi-gear"></i>
+                        </NavLink>
+                    </div>
+                </div>
+            </nav>
+        </div>
+
         <div class="container-fluid vh-100">
           
             <div class="row pt-5">

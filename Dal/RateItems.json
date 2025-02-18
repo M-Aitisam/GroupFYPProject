@@ -1,0 +1,26 @@
+[
+    {
+        "Name": "Cutting",
+        "BasePrice": 10,
+        "Price": 0,
+        "Quantity": 1,
+        "IsActive": true,
+        "ImageUrl": "/images/hair-styling.png"
+    },
+    {
+        "Name": "Buzz Cut",
+        "BasePrice": 200,
+        "Price": 0,
+        "Quantity": 1,
+        "IsActive": true,
+        "ImageUrl": "/images/hair-color.png"
+    },
+    {
+        "Name": "Cutting",
+        "BasePrice": 22,
+        "Price": 0,
+        "Quantity": 1,
+        "IsActive": true,
+        "ImageUrl": "/images/spray.png"
+    }
+]

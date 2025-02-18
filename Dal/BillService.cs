@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System;
 using System.Collections.Generic;
-using System.IO; // Ensure that you include this for Path and File operations
+using System.IO;
 using System.Linq;
 using Model;
 
@@ -9,16 +9,19 @@ namespace Dal
 {
     public class BillService
     {
-        // Update the path to the Data folder inside your project
-        private readonly string rateItemsFilePath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "RateItems.json");
+        private readonly string rateItemsFilePath;
 
-        public List<RateItem> RateItems { get; set; } = new List<RateItem>();
-        public List<RateItem> SelectedItems { get; private set; } = new List<RateItem>();
+        public List<RateItem> RateItems { get; private set; } = new();
+        public List<RateItem> SelectedItems { get; private set; } = new();
 
         public decimal TotalAmount => SelectedItems.Sum(item => item.Price);
 
+        public event Action? OnChange;
+
         public BillService()
         {
+            rateItemsFilePath = Path.Combine(AppContext.BaseDirectory, "Dal", "RateItems.json");
+            EnsureDirectoryExists();
             LoadRateItemsFromFile();
         }
 
@@ -32,7 +35,7 @@ namespace Dal
             }
             else
             {
-                item.Quantity = 1; // Set the initial quantity to 1
+                item.Quantity = 1;
                 item.Price = item.BasePrice;
                 SelectedItems.Add(item);
             }
@@ -48,7 +51,7 @@ namespace Dal
         public void AddRateItem(RateItem item)
         {
             RateItems.Add(item);
-            SaveRateItemsToFile(); // Save to file after adding
+            SaveRateItemsToFile();
             NotifyStateChanged();
         }
 
@@ -64,7 +67,7 @@ namespace Dal
             if (rateItem != null && !rateItem.IsActive)
             {
                 RateItems.Remove(rateItem);
-                SaveRateItemsToFile(); // Save to file after removing
+                SaveRateItemsToFile();
                 NotifyStateChanged();
             }
         }
@@ -90,27 +93,32 @@ namespace Dal
             }
         }
 
-        public event Action? OnChange;
+        private void NotifyStateChanged() => OnChange?.Invoke();
 
-        private void NotifyStateChanged()
-        {
-            OnChange?.Invoke();
-        }
-
-        // Method to save RateItems to file
         private void SaveRateItemsToFile()
         {
-            var rateItemsJson = JsonSerializer.Serialize(RateItems);
+            EnsureDirectoryExists();
+
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            var rateItemsJson = JsonSerializer.Serialize(RateItems, options);
             File.WriteAllText(rateItemsFilePath, rateItemsJson);
         }
 
-        // Method to load RateItems from file
         private void LoadRateItemsFromFile()
         {
             if (File.Exists(rateItemsFilePath))
             {
                 var rateItemsJson = File.ReadAllText(rateItemsFilePath);
                 RateItems = JsonSerializer.Deserialize<List<RateItem>>(rateItemsJson) ?? new List<RateItem>();
+            }
+        }
+
+        private void EnsureDirectoryExists()
+        {
+            string? directoryPath = Path.GetDirectoryName(rateItemsFilePath);
+            if (!string.IsNullOrEmpty(directoryPath) && !Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
             }
         }
     }
