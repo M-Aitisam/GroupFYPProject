@@ -1,0 +1,41 @@
+﻿@page "/benefits"
+
+<div class="container text-center my-5">
+    <h2 class="fw-bold">Benefits of Canteen Management System</h2>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mt-4">
+        @foreach (var benefit in benefits)
+        {
+            <div class="col">
+                <div class="card border-0 text-center">
+                    <img src="@benefit.Icon" class="card-img-top mx-auto" style="width: 50px; height: 50px;" />
+                    <div class="card-body">
+                        <h5 class="fw-bold">@benefit.Title</h5>
+                        <p>@benefit.Description</p>
+                        <a href="#" class="text-danger fw-bold">Know more →</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private List<Benefit> benefits = new()
+    {
+        new Benefit { Icon = "Pictures/credit.png", Title = "Set and track Credit", Description = "Effortlessly track customer credit and set limits..." },
+        new Benefit { Icon = "Pictures/inventory.png", Title = "Real-Time Inventory Tracking", Description = "Keep a close eye on your stock levels, track ingredient usage..." },
+        new Benefit { Icon = "Pictures/qr.png", Title = "Establish QR ordering", Description = "Enable your customers to order through a QR menu..." },
+        new Benefit { Icon = "Pictures/custom_order.png", Title = "Provide Customized Orders", Description = "Be extra cheesy with customers by loading them with extra varieties..." },
+        new Benefit { Icon = "Pictures/combo.png", Title = "Design Combo packs", Description = "Track the customer buying patterns using our Canteen Management Software..." },
+        new Benefit { Icon = "Pictures/order.png", Title = "Optimize Order Management", Description = "Effortlessly manage, modify, and fulfill orders..." },
+        new Benefit { Icon = "Pictures/plan.png", Title = "Plan, Prepare & Provide", Description = "Initiate a well-defined production plan with pre-defined recipes..." },
+        new Benefit { Icon = "Pictures/reward.png", Title = "Reward & Engage Customers", Description = "Offer tailored discounts, offers on important days..." }
+    };
+
+    private class Benefit
+    {
+        public string Icon { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+    }
+}

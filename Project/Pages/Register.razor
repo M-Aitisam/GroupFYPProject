@@ -1,0 +1,71 @@
+﻿@page "/register"
+@inject Dal.LoginAuthenticationService AuthService
+@inject NavigationManager Navigation
+@using Model
+
+<div class="register-container">
+    <div class="left-panel">
+
+        <button class="social-btn google">Sign in with Google+</button>
+        <button class="social-btn facebook">Sign in with Facebook</button>
+    </div>
+
+    <div class="right-panel">
+        <div class="form-container">
+            <div class="switch-buttons">
+                <button class="toggle-btn active">Log In</button>
+                <button class="toggle-btn">Register</button>
+            </div>
+
+            <h3>Register</h3>
+            <form @onsubmit="HandleRegister">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" @bind="UserModel.Username" placeholder="Enter your username" required autocomplete="off" />
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" @bind="UserModel.Email" placeholder="Enter your email" required autocomplete="off" />
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" @bind="UserModel.Password" placeholder="Enter your password" required minlength="8" autocomplete="new-password" />
+                </div>
+
+                <button type="submit" class="btn-submit">Register</button>
+            </form>
+            <p>Already have an account? <a href="/login">Login here</a></p>
+
+            <p class="message">@Message</p>
+        </div>
+    </div>
+</div>
+
+@code {
+    private UserModel UserModel = new();
+    private string Message = "";
+
+    protected override void OnInitialized()
+    {
+        UserModel = new UserModel(); // ✅ Ensures form is always empty on page load
+    }
+
+    private async Task HandleRegister()
+    {
+        var result = await AuthService.RegisterAsync(UserModel.Username, UserModel.Email, UserModel.Password);
+        if (result)
+        {
+            Message = "Successfully registered!";
+            UserModel = new UserModel(); // ✅ Clear form after registration
+            StateHasChanged();
+            await Task.Delay(500);
+            Navigation.NavigateTo("/login");
+        }
+        else
+        {
+            Message = "Registration failed. Username or email already exists.";
+        }
+    }
+}

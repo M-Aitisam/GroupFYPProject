@@ -1,0 +1,109 @@
+﻿@page "/login"
+@using Microsoft.AspNetCore.Components.Forms
+@inject NavigationManager Navigation
+@using Dal;
+@inject LoginAuthenticationService AuthService
+@using System.ComponentModel.DataAnnotations
+
+<div class="container">
+    <div class="login-container">
+        <div class="left-section">
+            @* <div class="ie-container"> *@
+            @*     <img src="Pictures/topimg.png" alt="Login Image" class="login-image" /> *@
+            @* </div> *@
+            <button class="social-btn google" @onclick="SignInWithGoogle">Sign in with Google</button>
+            <button class="social-btn facebook" @onclick="SignInWithFacebook">Sign in with Facebook</button>
+        </div>
+
+        <div class="right-section">
+            <div class="form-container">
+                <div class="btn-group">
+                    <button class="toggle-btn active">Log In</button>
+                    <button class="toggle-btn" @onclick="NavigateToRegister">Register</button>
+                </div>
+
+                <h3>Log In</h3>
+                <EditForm Model="loginModel" OnValidSubmit="HandleLogin">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="form-group">
+                        <label>Username</label>
+                        <InputText class="form-control" @bind-Value="loginModel.Username" />
+                        <ValidationMessage For="@(() => loginModel.Username)" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Password</label>
+                        <InputText class="form-control" Type="password" @bind-Value="loginModel.Password" />
+                        <ValidationMessage For="@(() => loginModel.Password)" />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary full-width">Sign In</button>
+                </EditForm>
+
+                @if (!string.IsNullOrEmpty(ErrorMessage))
+                {
+                    <p class="error-message">@ErrorMessage</p>
+                }
+
+                <div class="links">
+                    <a href="#">Forgot Password?</a>
+                    <a href="/register">Not a <strong>Member</strong> yet?</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private LoginModel loginModel = new();
+    private string ErrorMessage = "";
+
+    private async Task HandleLogin()
+    {
+        try
+        {
+            var result = await AuthService.LoginAsync(loginModel.Username, loginModel.Password);
+            if (result)
+            {
+                Navigation.NavigateTo("/dashboard");
+                loginModel = new(); // Reset fields after successful login
+            }
+            else
+            {
+                ErrorMessage = "Invalid username or password.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "An error occurred. Please try again later.";
+            Console.WriteLine($"Login Error: {ex.Message}");
+        }
+    }
+
+    private void SignInWithGoogle()
+    {
+        Navigation.NavigateTo("https://accounts.google.com/o/oauth2/auth?client_id=YOUR_GOOGLE_CLIENT_ID&redirect_uri=https://project.com/signin-google&response_type=code&scope=email%20profile", true);
+    }
+
+    private void SignInWithFacebook()
+    {
+        Navigation.NavigateTo("https://www.facebook.com/v13.0/dialog/oauth?client_id=YOUR_FACEBOOK_APP_ID&redirect_uri=https://project.com/signin-facebook&scope=email,public_profile", true);
+    }
+
+    private void NavigateToRegister()
+    {
+        Navigation.NavigateTo("/register");
+    }
+
+    public class LoginModel
+    {
+        [Required(ErrorMessage = "Username is required")]
+        public string Username { get; set; } = "";
+
+        [Required(ErrorMessage = "Password is required")]
+        [MinLength(8, ErrorMessage = "Password must be at least 8 characters long")]
+        public string Password { get; set; } = "";
+    }
+}

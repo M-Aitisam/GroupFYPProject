@@ -1,0 +1,90 @@
+﻿@inject NavigationManager Navigation
+
+@* Fixed Navbar with Bootstrap *@
+<nav class="navbar navbar-expand-lg navbar-light bg-white  shadow-sm fixed-top">
+    <div class="container-fluid">
+        <!-- Logo -->
+        <a class="navbar-brand  p-0" style="margin-top:-1rem " href="/">
+            <img src="Pictures/logo.png" alt="Matrix Logo" height="50">
+        </a>
+
+        <!-- Navbar Toggler for Mobile -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navigation Links -->
+        <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle fw-bold " style="margin-top:-15px" href="#" role="button" data-bs-toggle="dropdown">Solution</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Solution 1</a></li>
+                        <li><a class="dropdown-item" href="#">Solution 2</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle fw-bold" href="#" role="button" data-bs-toggle="dropdown">Industries</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Industry 1</a></li>
+                        <li><a class="dropdown-item" href="#">Industry 2</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle fw-bold" href="#" role="button" data-bs-toggle="dropdown">Products</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Product 1</a></li>
+                        <li><a class="dropdown-item" href="#">Product 2</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-bold" href="#">Partners</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-bold" href="#">Support</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-bold" href="#">Resources</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle fw-bold" href="#" role="button" data-bs-toggle="dropdown">About Us</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Our Story</a></li>
+                        <li><a class="dropdown-item" href="#">Team</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-bold" href="#">Contact Us</a>
+                </li>
+            </ul>
+
+            <!-- Quick Inquiry Button -->
+            <AuthorizeView>
+                <Authorized>
+                    <a href="Identity/Account/Manage">Hello, @context.User.Identity?.Name!</a>
+                    <form method="post" action="Identity/Account/Logout">
+                        <button type="submit" class="nav-link btn btn-link">Log out</button>
+                    </form>
+                </Authorized>
+                <NotAuthorized>
+                    <div class="d-flex gap-3 mb-3 auth-links">
+                        <a @onclick="NavigateToRegister" class="reg">Register</a>
+                        <a @onclick="NavigateToLogin" class="logi">Log in</a>
+                    </div>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
+    </div>
+</nav>
+
+@code {
+    private void NavigateToLogin()
+    {
+        Navigation.NavigateTo("login");
+    }
+    private void NavigateToRegister()
+    {
+        Navigation.NavigateTo("register");
+    }
+}
