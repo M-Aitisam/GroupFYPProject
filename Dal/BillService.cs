@@ -38,8 +38,10 @@ namespace Dal
             else
             {
                 item.Quantity = 1;
-                item.BasePrice = item.Price;
-                item.Price = item.BasePrice;
+                if (item.BasePrice == 0) // Ensure BasePrice is always set
+                {
+                    item.BasePrice = item.Price;
+                }
                 SelectedItems.Add(item);
             }
             await NotifyStateChangedAsync();

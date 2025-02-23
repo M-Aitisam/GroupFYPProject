@@ -1,5 +1,4 @@
 ﻿@page "/bills"
-
 @inject BillService BillService
 
 <div class="container p-3 border rounded shadow-sm bg-white">
@@ -29,7 +28,7 @@
                             </td>
                             <td>@item.Price</td>
                             <td>
-                                <button class="btn btn-sm btn-danger" @onclick="() => RemoveItem(item)">
+                                <button class="btn btn-sm btn-danger" @onclick="() => ConfirmDelete(item)">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </td>
@@ -50,7 +49,41 @@
     </div>
 </div>
 
+<!-- Bootstrap Delete Confirmation Modal -->
+<div class="modal fade @(ShowDeleteModal ? "show d-block" : "d-none")" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Confirm Deletion</h5>
+                <button type="button" class="close btn btn-light" @onclick="CancelDelete">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong>@(SelectedItem?.Name)</strong>?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" @onclick="CancelDelete">Cancel</button>
+                <button class="btn btn-danger" @onclick="DeleteItem">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .modal {
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+        border-radius: 10px;
+    }
+</style>
+
 @code {
+    private RateItem? SelectedItem;
+    private bool ShowDeleteModal = false;
+
     protected override void OnInitialized()
     {
         BillService.OnChange += async () => await InvokeAsync(StateHasChanged);
@@ -73,8 +106,26 @@
         }
     }
 
-    private async Task RemoveItem(RateItem item)
+    private void ConfirmDelete(RateItem item)
     {
-        await BillService.RemoveItemAsync(item);
+        SelectedItem = item;
+        ShowDeleteModal = true;
+    }
+
+    private async Task DeleteItem()
+    {
+        if (SelectedItem != null)
+        {
+            await BillService.RemoveItemAsync(SelectedItem);
+            SelectedItem = null;
+            await InvokeAsync(StateHasChanged);
+        }
+        ShowDeleteModal = false;
+    }
+
+    private void CancelDelete()
+    {
+        SelectedItem = null;    
+        ShowDeleteModal = false;
     }
 }
