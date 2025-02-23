@@ -70,6 +70,12 @@ namespace Dal
             await NotifyStateChangedAsync();
         }
 
+        public async Task ClearAllItemsAsync()
+        {
+            SelectedItems.Clear();
+            await NotifyStateChangedAsync();
+        }
+
         public async Task RemoveRateItemAsync(string productName)
         {
             var rateItem = RateItems.FirstOrDefault(x => x.Name == productName);
@@ -79,25 +85,6 @@ namespace Dal
                 SaveRateItemsToFile();
                 await NotifyStateChangedAsync();
             }
-        }
-
-        public async Task UpdateRateItemAsync(RateItem updatedItem)
-        {
-            var item = RateItems.FirstOrDefault(i => i.Name == updatedItem.Name);
-            if (item != null)
-            {
-                item.BasePrice = updatedItem.BasePrice;
-                item.Price = updatedItem.Price;
-                item.IsActive = updatedItem.IsActive;
-                SaveRateItemsToFile();
-                await NotifyStateChangedAsync();
-            }
-        }
-
-        public async Task ClearAllItemsAsync()
-        {
-            SelectedItems.Clear();
-            await NotifyStateChangedAsync();
         }
 
         public async Task ClearTotalAmountAsync()

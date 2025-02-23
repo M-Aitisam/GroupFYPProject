@@ -51,6 +51,11 @@
 </div>
 
 @code {
+    protected override void OnInitialized()
+    {
+        BillService.OnChange += async () => await InvokeAsync(StateHasChanged);
+    }
+
     private async Task IncreaseQuantity(RateItem item)
     {
         item.Quantity++;
