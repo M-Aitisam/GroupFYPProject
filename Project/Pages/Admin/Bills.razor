@@ -1,8 +1,8 @@
 ﻿@page "/bills"
 @inject BillService BillService
 
-<div class="container p-3 border rounded shadow-sm bg-white">
-    <div class="table-responsive">
+<div class="container cont border rounded shadow-sm">
+    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
         <table class="table table-bordered text-center">
             <thead class="table-light">
                 <tr>
@@ -22,13 +22,13 @@
                             <td>@index</td>
                             <td>@item.Name</td>
                             <td>
-                                <button class="btn btn-sm btn-success" @onclick="() => IncreaseQuantity(item)">+</button>
-                                <input type="text" class="form-control d-inline w-25 text-center" value="@item.Quantity" readonly>
-                                <button class="btn btn-sm btn-success" @onclick="() => DecreaseQuantity(item)">-</button>
+                                <button class="btn btn-xs btn-success action-btn" @onclick="() => IncreaseQuantity(item)">+</button>
+                                <input type="text" class="form-control mini-input text-center" value="@item.Quantity" readonly>
+                                <button class="btn btn-xs btn-danger action-btn" @onclick="() => DecreaseQuantity(item)">-</button>
                             </td>
                             <td>@item.Price</td>
                             <td>
-                                <button class="btn btn-sm btn-danger" @onclick="() => ConfirmDelete(item)">
+                                <button class="btn btn-xs btn-outline-danger delete-btn" @onclick="() => ConfirmDelete(item)">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </td>
@@ -38,13 +38,28 @@
             </tbody>
         </table>
     </div>
-    <div class="d-flex justify-content-between mt-3">
-        <div>
-            <p>Total Item(s): <strong>@BillService.SelectedItems?.Count()</strong></p>
-            <p>Price: <strong>@BillService.TotalAmount</strong></p>
-        </div>
-        <div>
-            <p>Gross Price (inc 15% Tax): <strong>@(BillService.TotalAmount * 1.15m)</strong></p>
+
+    <!-- Fixed Footer Section -->
+    <div class="container footer-container">
+        <div class="row justify-content-center">
+            <div class="col-md-12 footer-content">
+                <div class="total-section">
+                    <p>Total Item(s): <strong>@BillService.SelectedItems?.Count()</strong></p>
+                    <p>Subtotal: <strong>@BillService.TotalAmount</strong></p>
+                    <p>Gross Price (inc 15% Tax): <strong>@(BillService.TotalAmount * 1.15m)</strong></p>
+                </div>
+                <div class="button-section">
+                    <button class="btn btn-xs btn-danger mini-btn">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </button>
+                    <button class="btn btn-xs btn-warning mini-btn">
+                        <i class="bi bi-pause-circle"></i> Hold
+                    </button>
+                    <button class="btn btn-xs btn-success mini-btn">
+                        <i class="bi bi-check-circle"></i> Pay
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -63,8 +78,8 @@
                 <p>Are you sure you want to delete <strong>@(SelectedItem?.Name)</strong>?</p>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" @onclick="CancelDelete">Cancel</button>
-                <button class="btn btn-danger" @onclick="DeleteItem">OK</button>
+                <button class="btn btn-xs btn-secondary" @onclick="CancelDelete">Cancel</button>
+                <button class="btn btn-xs btn-danger" @onclick="DeleteItem">OK</button>
             </div>
         </div>
     </div>
@@ -78,6 +93,72 @@
     .modal-content {
         border-radius: 10px;
     }
+
+    /* Mini Buttons */
+    .mini-btn, .action-btn, .delete-btn {
+        font-size: 0.8rem;
+        padding: 5px 8px;
+        border-radius: 5px;
+        transition: all 0.3s ease-in-out;
+    }
+
+        .action-btn:hover, .delete-btn:hover, .mini-btn:hover {
+            transform: scale(1.1);
+        }
+
+    .btn-xs {
+        font-size: 0.7rem;
+    }
+
+    .mini-input {
+        width: 50px;
+        font-size: 0.9rem;
+        text-align: center;
+        display: inline-block;
+    }
+
+    /* Table Scroll */
+    .table-responsive {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    /* Footer Styling */
+    .footer-container {
+        position: sticky;
+        bottom: 0;
+        left: 0;
+        background: #fff;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        border-top: 2px solid #ddd;
+        background-color: #f8d7da;
+        padding: 10px;
+    }
+
+    .footer-content {
+        display: flex;
+        justify-content: space-between;
+        background-color: #f5c6cb;
+    }
+
+    .total-section p {
+        margin: 0;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+
+    .button-section {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+    }
+
+        .button-section button {
+            display: flex;
+            justify-content: center;
+            padding: 2px 2px 0px 2px;
+            gap: 8px;
+        }
 </style>
 
 @code {
@@ -87,6 +168,11 @@
     protected override void OnInitialized()
     {
         BillService.OnChange += async () => await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        BillService.OnChange -= async () => await InvokeAsync(StateHasChanged);
     }
 
     private async Task IncreaseQuantity(RateItem item)
@@ -125,7 +211,7 @@
 
     private void CancelDelete()
     {
-        SelectedItem = null;    
+        SelectedItem = null;
         ShowDeleteModal = false;
     }
 }
