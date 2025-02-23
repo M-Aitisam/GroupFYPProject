@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components;
 using Model;
 
 namespace Dal
@@ -16,7 +18,7 @@ namespace Dal
 
         public decimal TotalAmount => SelectedItems.Sum(item => item.Price);
 
-        public event Action? OnChange;
+        public event Func<Task>? OnChange;
 
         public BillService()
         {
@@ -25,7 +27,7 @@ namespace Dal
             LoadRateItemsFromFile();
         }
 
-        public void AddItem(RateItem item)
+        public async Task AddItemAsync(RateItem item)
         {
             var existingItem = SelectedItems.FirstOrDefault(i => i.Name == item.Name);
             if (existingItem != null)
@@ -36,69 +38,100 @@ namespace Dal
             else
             {
                 item.Quantity = 1;
+                item.BasePrice = item.Price;
                 item.Price = item.BasePrice;
                 SelectedItems.Add(item);
             }
-            NotifyStateChanged();
+            await NotifyStateChangedAsync();
         }
 
-        public void RemoveItem(RateItem item)
+        public async Task RemoveItemAsync(RateItem item)
         {
-            SelectedItems.Remove(item);
-            NotifyStateChanged();
+            var existingItem = SelectedItems.FirstOrDefault(i => i.Name == item.Name);
+            if (existingItem != null)
+            {
+                if (existingItem.Quantity > 1)
+                {
+                    existingItem.Quantity--;
+                    existingItem.Price = existingItem.BasePrice * existingItem.Quantity;
+                }
+                else
+                {
+                    SelectedItems.Remove(existingItem);
+                }
+                await NotifyStateChangedAsync();
+            }
         }
 
-        public void AddRateItem(RateItem item)
+        public async Task AddRateItemAsync(RateItem item)
         {
             RateItems.Add(item);
             SaveRateItemsToFile();
-            NotifyStateChanged();
+            await NotifyStateChangedAsync();
         }
 
-        public void ClearAllItems()
-        {
-            SelectedItems.Clear();
-            NotifyStateChanged();
-        }
-
-        public void RemoveRateItem(string productName)
+        public async Task RemoveRateItemAsync(string productName)
         {
             var rateItem = RateItems.FirstOrDefault(x => x.Name == productName);
             if (rateItem != null && !rateItem.IsActive)
             {
                 RateItems.Remove(rateItem);
                 SaveRateItemsToFile();
-                NotifyStateChanged();
+                await NotifyStateChangedAsync();
             }
         }
 
-        public void ClearTotalAmount()
+        public async Task UpdateRateItemAsync(RateItem updatedItem)
+        {
+            var item = RateItems.FirstOrDefault(i => i.Name == updatedItem.Name);
+            if (item != null)
+            {
+                item.BasePrice = updatedItem.BasePrice;
+                item.Price = updatedItem.Price;
+                item.IsActive = updatedItem.IsActive;
+                SaveRateItemsToFile();
+                await NotifyStateChangedAsync();
+            }
+        }
+
+        public async Task ClearAllItemsAsync()
+        {
+            SelectedItems.Clear();
+            await NotifyStateChangedAsync();
+        }
+
+        public async Task ClearTotalAmountAsync()
         {
             foreach (var item in SelectedItems)
             {
-                item.Price = 0;
-                item.Quantity = 0;
+                item.Price = item.BasePrice;
+                item.Quantity = 1;
             }
-            NotifyStateChanged();
+            await NotifyStateChangedAsync();
         }
 
-        public void UpdateItem(RateItem updatedItem)
+        public async Task UpdateItemAsync(RateItem updatedItem)
         {
             var item = SelectedItems.FirstOrDefault(i => i.Name == updatedItem.Name);
             if (item != null)
             {
                 item.Quantity = updatedItem.Quantity;
                 item.Price = item.BasePrice * item.Quantity;
-                NotifyStateChanged();
+                await NotifyStateChangedAsync();
             }
         }
 
-        private void NotifyStateChanged() => OnChange?.Invoke();
+        private async Task NotifyStateChangedAsync()
+        {
+            if (OnChange != null)
+            {
+                await OnChange.Invoke();
+            }
+        }
 
         private void SaveRateItemsToFile()
         {
             EnsureDirectoryExists();
-
             var options = new JsonSerializerOptions { WriteIndented = true };
             var rateItemsJson = JsonSerializer.Serialize(RateItems, options);
             File.WriteAllText(rateItemsFilePath, rateItemsJson);

@@ -131,6 +131,7 @@
         "/images/spray1.png",
         "/images/trim-haircut.png",
         "/images/face.png",
+"/images/fries.jpg",
         // Add more image paths here
     };
 
@@ -179,8 +180,9 @@
 
         if (editingProduct == null)
         {
-            BillService.AddRateItem(rateItem);
+            await BillService.AddRateItemAsync(rateItem);
         }
+
         else
         {
             var existingRateItem = BillService.RateItems.FirstOrDefault(x => x.Name == editingProduct.ProductTitle);
@@ -203,7 +205,7 @@
         if (product != null && !string.IsNullOrEmpty(product.ProductTitle))
         {
             ProductList.Remove(product);
-            BillService.RemoveRateItem(product.ProductTitle);
+            await BillService.RemoveRateItemAsync(product.ProductTitle);
             await SaveProductsToFile();
             UpdateRateItems();
         }

@@ -1,112 +1,36 @@
 ﻿@page "/bills"
 
 @inject BillService BillService
-@inject NavigationManager NavigationManager
-@inject IJSRuntime JSRuntime
 
-<div>
-    <!-- Customer Information -->
-    <div class="p-2">
-        <div class="d-flex gap-3">
-            <div>
-                <select @bind="client.BarberName" class="form-control">
-                    <option value="" disabled selected>Select Barber Name</option>
-                    @foreach (var barber in barbers)
-                    {
-                        <option value="@barber">@barber</option>
-                    }
-                </select>
-            </div>
-
-            <div>
-                <input type="text" class="form-control"
-                       @bind="client.FirstName" placeholder="Customer Name" />
-            </div>
-
-            <div>
-                <input type="text" class="form-control"
-                       @bind="client.Phone" placeholder="Customer Phone" />
-            </div>
-        </div>
-    </div>
-
-    <!-- Bill and Actions -->
-    <div class="d-flex align-items-center justify-content-between">
-        <div>
-            <span>Total: </span>
-            <span>$ @BillService.TotalAmount</span>
-        </div>
-
-        <div class="d-flex align-items-center mx-2">
-            <input type="number" id="amountPaid" class="form-control me-2" @bind="amountPaid" placeholder="Amount Paid" />
-          
-            <button @onclick="CalculateChange" class="btn btn-outline-primary" disabled="@(!HasItems())">
-                Return
-            </button>
-            <button class="btn btn-outline-danger mx-2" @onclick="ClearAllItems">
-                <span>Clear</span>
-            </button>
-        </div>
-    </div>
-
-    <!-- Change Amount and Errors -->
-    <div class="mt-3">
-        @if (changeAmount.HasValue)
-        {
-            <p class="mb-1 text-secondary">
-                Change to Return: <span class="text-primary">@changeAmount.Value.ToString("C")</span>
-            </p>
-        }
-        @if (isError)
-        {
-            <p class="mb-0 text-danger">
-                @errorMessage
-            </p>
-        }
-    </div>
-
-    <!-- Save and Print Buttons -->
-    @if (showSaveAndPrint)
-    {
-        <div class="d-flex mt-3">
-            <button class="btn btn-success me-2" @onclick="SaveBill">
-                Save
-            </button>
-            <button class="btn btn-info" @onclick="PrintBill">
-                Print
-            </button>
-        </div>
-    }
-
-    <!-- Bill Items Table -->
-    <div class="border p-5 mt-3" style="max-height:70vh; min-height:60vh; overflow-y:scroll">
-        <table class="table small">
-            <thead>
+<div class="container p-3 border rounded shadow-sm bg-white">
+    <div class="table-responsive">
+        <table class="table table-bordered text-center">
+            <thead class="table-light">
                 <tr>
-                    <th>Item Name</th>
-                    <th>Quantity</th>
+                    <th>#</th>
+                    <th>Product Name</th>
+                    <th>Qty.</th>
                     <th>Price</th>
-                    <th>Actions</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
-                @if (BillService.SelectedItems != null)
+                @if (BillService.SelectedItems != null && BillService.SelectedItems.Any())
                 {
-                    @foreach (var item in BillService.SelectedItems)
+                    @foreach (var (item, index) in BillService.SelectedItems.Select((item, index) => (item, index + 1)))
                     {
                         <tr>
+                            <td>@index</td>
                             <td>@item.Name</td>
-                            <td>@item.Quantity</td>
+                            <td>
+                                <button class="btn btn-sm btn-success" @onclick="() => IncreaseQuantity(item)">+</button>
+                                <input type="text" class="form-control d-inline w-25 text-center" value="@item.Quantity" readonly>
+                                <button class="btn btn-sm btn-success" @onclick="() => DecreaseQuantity(item)">-</button>
+                            </td>
                             <td>@item.Price</td>
                             <td>
-                                <button class="btn btn-outline-primary" @onclick="() => IncreaseQuantity(item)">
-                                    <i class="bi bi-plus"></i>
-                                </button>
-                                <button class="btn btn-outline-primary" @onclick="() => DecreaseQuantity(item)">
-                                    <i class="bi bi-dash"></i>
-                                </button>
-                                <button class="btn btn-outline-danger delete-button" @onclick="() => RemoveItem(item)">
-                                    <i class="bi bi-trash3"></i>
+                                <button class="btn btn-sm btn-danger" @onclick="() => RemoveItem(item)">
+                                    <i class="bi bi-trash"></i>
                                 </button>
                             </td>
                         </tr>
@@ -115,101 +39,37 @@
             </tbody>
         </table>
     </div>
+    <div class="d-flex justify-content-between mt-3">
+        <div>
+            <p>Total Item(s): <strong>@BillService.SelectedItems?.Count()</strong></p>
+            <p>Price: <strong>@BillService.TotalAmount</strong></p>
+        </div>
+        <div>
+            <p>Gross Price (inc 15% Tax): <strong>@(BillService.TotalAmount * 1.15m)</strong></p>
+        </div>
+    </div>
 </div>
 
 @code {
-    private decimal amountPaid;
-    private decimal? changeAmount;
-    private bool isError = false;
-    private string? errorMessage;
-    private bool showSaveAndPrint = false;
-
-    private Client client = new Client();
-    private List<string> barbers = new List<string> { "John", "Jane", "Alex", "Sam", "Moiz", "Shoaib" };
-
-    public class Client
-    {
-        public string? FirstName { get; set; }
-        public string? Phone { get; set; }
-        public string? BarberName { get; set; }
-    }
-
-    private bool HasItems()
-    {
-        return BillService.SelectedItems != null && BillService.SelectedItems.Count > 0;
-    }
-
-    private void CalculateChange()
-    {
-        isError = false;
-        errorMessage = string.Empty;
-
-        if (amountPaid < BillService.TotalAmount)
-        {
-            isError = true;
-            errorMessage = "Amount paid cannot be less than the total amount.";
-            changeAmount = null;
-        }
-        else if (amountPaid <= 0)
-        {
-            isError = true;
-            errorMessage = "Sorry, you cannot pay a negative or zero amount.";
-            changeAmount = null;
-        }
-        else
-        {
-            changeAmount = amountPaid - BillService.TotalAmount;
-            showSaveAndPrint = true; 
-        }
-    }
-
-    protected override void OnInitialized()
-    {
-        BillService.OnChange += async () => await InvokeAsync(StateHasChanged);
-    }
-
-    public void Dispose()
-    {
-        BillService.OnChange -= async () => await InvokeAsync(StateHasChanged);
-    }
-
-    private void IncreaseQuantity(RateItem item)
+    private async Task IncreaseQuantity(RateItem item)
     {
         item.Quantity++;
         item.Price = item.BasePrice * item.Quantity;
-        BillService.UpdateItem(item);
+        await BillService.UpdateItemAsync(item);
     }
 
-    private void DecreaseQuantity(RateItem item)
+    private async Task DecreaseQuantity(RateItem item)
     {
         if (item.Quantity > 1)
         {
             item.Quantity--;
             item.Price = item.BasePrice * item.Quantity;
-            BillService.UpdateItem(item);
+            await BillService.UpdateItemAsync(item);
         }
     }
 
-    private void RemoveItem(RateItem item)
+    private async Task RemoveItem(RateItem item)
     {
-        BillService.RemoveItem(item);
+        await BillService.RemoveItemAsync(item);
     }
-
-    private void ClearAllItems()
-    {
-        BillService.ClearAllItems();
-        showSaveAndPrint = false; 
-    }
-
-    private void SaveBill()
-    {
-        
-        NavigationManager.NavigateTo("/saved-bills");
-    }
-
-    private async Task PrintBill()
-    {
-        await JSRuntime.InvokeVoidAsync("window.print");
-    }
- 
 }

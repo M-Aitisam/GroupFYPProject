@@ -1,26 +1,98 @@
 [
     {
-        "Name": "Cutting",
+        "Name": "Fried Rice",
+        "BasePrice": 20,
+        "Price": 0,
+        "Quantity": 1,
+        "IsActive": true,
+        "ImageUrl": "/images/spray.png"
+    },
+    {
+        "Name": "Noodles",
         "BasePrice": 10,
+        "Price": 0,
+        "Quantity": 1,
+        "IsActive": true,
+        "ImageUrl": "/images/heat.png"
+    },
+    {
+        "Name": "Sesame Chicken",
+        "BasePrice": 25,
+        "Price": 0,
+        "Quantity": 1,
+        "IsActive": true,
+        "ImageUrl": "/images/trim-haircut.png"
+    },
+    {
+        "Name": "Beef Casserole",
+        "BasePrice": 17,
+        "Price": 0,
+        "Quantity": 1,
+        "IsActive": true,
+        "ImageUrl": "/images/spray1.png"
+    },
+    {
+        "Name": "Kung Pao Chicken",
+        "BasePrice": 30,
         "Price": 0,
         "Quantity": 1,
         "IsActive": true,
         "ImageUrl": "/images/hair-styling.png"
     },
     {
-        "Name": "Buzz Cut",
-        "BasePrice": 200,
+        "Name": "Chicken Tikka",
+        "BasePrice": 10,
         "Price": 0,
         "Quantity": 1,
         "IsActive": true,
-        "ImageUrl": "/images/hair-color.png"
+        "ImageUrl": "/images/trim-haircut.png"
     },
     {
-        "Name": "Cutting",
+        "Name": "Haidrabadi Biryani",
+        "BasePrice": 30,
+        "Price": 0,
+        "Quantity": 1,
+        "IsActive": true,
+        "ImageUrl": "/images/spray1.png"
+    },
+    {
+        "Name": "Chicken Biryani",
+        "BasePrice": 32,
+        "Price": 0,
+        "Quantity": 1,
+        "IsActive": true,
+        "ImageUrl": "/images/scissor.png"
+    },
+    {
+        "Name": "Chaana Batura",
         "BasePrice": 22,
         "Price": 0,
         "Quantity": 1,
         "IsActive": true,
-        "ImageUrl": "/images/spray.png"
+        "ImageUrl": "/images/heat.png"
+    },
+    {
+        "Name": "Idiyappam",
+        "BasePrice": 17,
+        "Price": 0,
+        "Quantity": 1,
+        "IsActive": true,
+        "ImageUrl": "/images/buzzcut.png"
+    },
+    {
+        "Name": "Cotolette",
+        "BasePrice": 37,
+        "Price": 0,
+        "Quantity": 1,
+        "IsActive": true,
+        "ImageUrl": "/images/face.png"
+    },
+    {
+        "Name": "Insalata di Riso",
+        "BasePrice": 41,
+        "Price": 0,
+        "Quantity": 1,
+        "IsActive": true,
+        "ImageUrl": "/images/hair-color.png"
     }
 ]

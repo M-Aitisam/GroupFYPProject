@@ -2,46 +2,119 @@
 @using System.Collections.Generic
 @inject BillService BillService
 
-<div class="row mt-5">
+<div class="container ratelist-container">
+    <input type="text" class="form-control search-box" placeholder="Search product by name" @bind="SearchQuery" />
 
-    @if (BillService.RateItems.Any(i => i.IsActive))
-    {
-        @foreach (var item in BillService.RateItems.Where(i => i.IsActive))
+    <div class="btn-group category-buttons" role="group">
+        @foreach (var category in Categories)
         {
-            <div class="col-3 text-center mb-2 rate-card" @onclick="() => AddToBill(item)">
-                <div class="card">
-                    <div class="card-body">
-                        <div>
-                            @if (!string.IsNullOrEmpty(item.ImageUrl))
-                            {
-                                <img src="@item.ImageUrl" alt="@item.Name" width="40" />
-                            }
-                        </div>
-                        <div>
-                            <span class="small">@item.Name</span><br />
-                            <span>@item.BasePrice.ToString("C")</span>
+            <button class="btn @(category == SelectedCategory ? "btn-success" : "btn-outline-success")"
+                    @onclick="() => FilterByCategory(category)">
+                @category
+            </button>
+        }
+    </div>
+
+    <div class="row product-grid">
+        @if (FilteredItems.Any())
+        {
+            @foreach (var item in FilteredItems)
+            {
+                <div class="col-6 col-md-4 col-lg-3 product-card">
+                    <div class="card shadow-sm" @onclick="() => AddToBill(item)">
+                        <img src="@item.ImageUrl" class="card-img-top product-image" alt="@item.Name">
+                        <div class="card-body text-center">
+                            <h6 class="product-name">@item.Name</h6>
+                            <p class="product-price">$@item.BasePrice</p>
                         </div>
                     </div>
                 </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center">
+                <p class="text-muted">No items available</p>
             </div>
         }
-    }
-    else
-    {
-        <div class="col-12">
-            <p>No card available</p>
-        </div>
-    }
+    </div>
 </div>
 
-@code {
-    protected override void OnInitialized()
-    {
-        BillService.OnChange += StateHasChanged;
+<style>
+    .ratelist-container {
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
     }
 
-    private void AddToBill(RateItem item)
+    .search-box {
+        margin-bottom: 15px;
+    }
+
+    .category-buttons {
+        margin-bottom: 15px;
+    }
+
+    .product-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .product-card {
+        padding: 10px;
+    }
+
+    .card {
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+    .product-image {
+        height: 150px;
+        object-fit: cover;
+        border-radius: 10px 10px 0 0;
+    }
+
+    .product-name {
+        font-size: 1rem;
+        font-weight: bold;
+    }
+
+    .product-price {
+        font-size: 1.1rem;
+        color: #28a745;
+        font-weight: bold;
+    }
+</style>
+
+@code {
+    private string SearchQuery { get; set; } = "";
+    private string SelectedCategory { get; set; } = "All";
+
+    private List<string> Categories = new() { "All", "Drink", "Fast Food", "Indian", "Italian", "Chinese" };
+
+    private IEnumerable<RateItem> FilteredItems =>
+      (BillService.RateItems ?? new List<RateItem>())
+      .Where(i => i.IsActive &&
+                 (SelectedCategory == "All" || (i.Category ?? "") == SelectedCategory) &&
+                 (string.IsNullOrEmpty(SearchQuery) || (i.Name ?? "").Contains(SearchQuery, StringComparison.OrdinalIgnoreCase)))
+      .ToList();
+
+
+    protected override void OnInitialized()
     {
-        BillService.AddItem(item);
+        BillService.OnChange += async () => await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task AddToBill(RateItem item)
+    {
+        await BillService.AddItemAsync(item);
+    }
+
+    private void FilterByCategory(string category)
+    {
+        SelectedCategory = category;
     }
 }
