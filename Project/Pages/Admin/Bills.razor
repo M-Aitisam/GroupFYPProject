@@ -1,9 +1,9 @@
 ﻿@page "/bills"
 @inject BillService BillService
 
-<div class="container cont border rounded shadow-sm">
-    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-        <table class="table table-bordered text-center">
+<div class="container  border rounded shadow-sm" style=" margin-left:10px; padding-top: 10px">
+    <div class="table-responsive" style=" overflow-y: auto; ">
+        <table class="table table-bordered  text-center">
             <thead class="table-light">
                 <tr>
                     <th>#</th>
@@ -22,13 +22,13 @@
                             <td>@index</td>
                             <td>@item.Name</td>
                             <td>
-                                <button class="btn btn-xs btn-success action-btn" @onclick="() => IncreaseQuantity(item)">+</button>
+                                <button class="btn btn-sm btn-success action-btn" @onclick="() => IncreaseQuantity(item)">+</button>
                                 <input type="text" class="form-control mini-input text-center" value="@item.Quantity" readonly>
-                                <button class="btn btn-xs btn-danger action-btn" @onclick="() => DecreaseQuantity(item)">-</button>
+                                <button class="btn btn-sm btn-danger action-btn" @onclick="() => DecreaseQuantity(item)">-</button>
                             </td>
                             <td>@item.Price</td>
                             <td>
-                                <button class="btn btn-xs btn-outline-danger delete-btn" @onclick="() => ConfirmDelete(item)">
+                                <button class="btn btn-sm btn-outline-danger delete-btn" @onclick="() => ConfirmDelete(item)">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </td>
@@ -40,7 +40,7 @@
     </div>
 
     <!-- Fixed Footer Section -->
-    <div class="container footer-container">
+    <div class="container col-md-6 footer-container">
         <div class="row justify-content-center">
             <div class="col-md-12 footer-content">
                 <div class="total-section">
@@ -86,6 +86,7 @@
 </div>
 
 <style>
+    
     .modal {
         background: rgba(0, 0, 0, 0.5);
     }
@@ -94,6 +95,7 @@
         border-radius: 10px;
     }
 
+    
     /* Mini Buttons */
     .mini-btn, .action-btn, .delete-btn {
         font-size: 0.8rem;
@@ -111,34 +113,37 @@
     }
 
     .mini-input {
-        width: 50px;
-        font-size: 0.9rem;
+        width: 80px;
+        font-size: 1rem;
         text-align: center;
         display: inline-block;
+        padding:0px;
     }
 
     /* Table Scroll */
     .table-responsive {
-        max-height: 300px;
+        min-height:480px;
+        max-height: 480px;
         overflow-y: auto;
     }
 
     /* Footer Styling */
     .footer-container {
-        position: sticky;
-        bottom: 0;
+        margin: 40px 20px 0px 10px;
+        position: fixed;
+        bottom: 10px;
         left: 0;
-        background: #fff;
+     
         box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
         border-top: 2px solid #ddd;
-        background-color: #f8d7da;
+        
         padding: 10px;
     }
 
     .footer-content {
         display: flex;
         justify-content: space-between;
-        background-color: #f5c6cb;
+        
     }
 
     .total-section p {
@@ -149,6 +154,7 @@
 
     .button-section {
         display: flex;
+        padding-right:20px;
         justify-content: center;
         gap: 8px;
     }
@@ -156,7 +162,8 @@
         .button-section button {
             display: flex;
             justify-content: center;
-            padding: 2px 2px 0px 2px;
+            align-items:center;
+            padding: -10px 2px -10px 2px;
             gap: 8px;
         }
 </style>
@@ -177,10 +184,20 @@
 
     private async Task IncreaseQuantity(RateItem item)
     {
-        item.Quantity++;
-        item.Price = item.BasePrice * item.Quantity;
+        if (item.Quantity == 0)
+        {
+            item.Quantity = 1; // Set the initial quantity
+            item.Price = item.BasePrice; // Set initial price to base price
+        }
+        else
+        {
+            item.Quantity++;
+            item.Price = item.BasePrice * item.Quantity;
+        }
+
         await BillService.UpdateItemAsync(item);
     }
+
 
     private async Task DecreaseQuantity(RateItem item)
     {
@@ -207,7 +224,7 @@
             await InvokeAsync(StateHasChanged);
         }
         ShowDeleteModal = false;
-    }
+    }   
 
     private void CancelDelete()
     {
